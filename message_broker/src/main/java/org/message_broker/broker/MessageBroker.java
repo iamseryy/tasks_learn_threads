@@ -14,11 +14,33 @@ public final class MessageBroker {
         this.messages = new ArrayDeque<Message>(maxMessages);
     }
 
-    public void produce(Message message) {
-        this.messages.add(message);
+    public synchronized void produce(Message message) {
+        try {
+            while (this.messages.size() >= this.maxMessages) {
+                super.wait();
+            }
+
+            this.messages.add(message);
+            super.notify();
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
-    public Message consume() {
-        return this.messages.poll();
+    public synchronized Message consume() {
+        try {
+            while (this.messages.isEmpty()) {
+                super.wait();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+
+        final Message consumedMessage = this.messages.poll();
+        super.notify();
+        return consumedMessage;
+
     }
 }

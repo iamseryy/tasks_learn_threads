@@ -14,10 +14,10 @@ public class App
         final int brokerMaxStoreMessages = 5;
         final MessageBroker messageBroker = new MessageBroker(brokerMaxStoreMessages);
 
-        //final Thread producingThread = new Thread(new MessageProducingTask(messageBroker));
+        final Thread producingThread = new Thread(new MessageProducingTask(messageBroker));
         final Thread consumingThread = new Thread(new MessageConsumingTask(messageBroker));
 
-        //producingThread.start();
+        producingThread.start();
         consumingThread.start();
     }
 }
